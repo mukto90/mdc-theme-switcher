@@ -1,135 +1,131 @@
 <?php
-/*
-	Plugin Name: MDC Theme Switcher [DON'T DOWNLOAD]
-	Description: [This Plugin is causing problems with latest version of WP. Please don't download. I'm fixing it ASAP.]
-	This plugin allows to switch and preview between available themes. It adds a sticky bar to front-end with a dropdown list of themes. Use shortcode [mdc_theme_swicher] anywhere to display theme switcher.
-	Author: Nazmul Ahsan
-	Author URI: http://mukto.medhabi.com
-	Plugin URI: http://medhabi.com
-	Version: 1.0.1
-	Tags: theme, preview, change, activate, front-end, switch, theme switch, theme switcher, theme change, mdc
-*/
-//===session enable for WP starts===//
-add_action('init', 'mdc_session_Start', 1);
-add_action('wp_logout', 'mdc_session_Destroy');
-add_action('wp_login', 'mdc_session_Destroy');
-function mdc_session_Start() {
-    if(!session_id())session_start();
-}
-function mdc_session_Destroy() {
-    session_destroy ();
-}
-function mdc_session_Get($key, $default='') {
-    if(isset($_SESSION[$key])) {
-        return $_SESSION[$key];
-    } else {
-        return $default;
-    }
-}
-function mdc_session_Set($key, $value) {
-    $_SESSION[$key] = $value;
-}
-//===session enable for WP ends===//
+/****
+	* Plugin Name: MDC Theme Switcher
+	* Plugin URI: http://medhabi.com/items/mdc-theme-switcher/
+	* Description: MDC Theme Switcher allows to change and preview among available themes of a WordPress from front-end.
+	* Author: Nazmul Ahsan
+	* Version: 2.0.1
+	* Author URI: http://medhabi.com
+	* Stable tag: 2.0.1
+	* License: GPL2+
+	* Text Domain: MedhabiDotCom
+****/
 
-//===add stylesheet starts===//
-function mdc_custom_css(){
-	?>
-	<link rel="stylesheet" href="<?php echo plugins_url();?>/mdc-theme-switcher/css/style.css" />
-	<style>
-	.mdc_sticky_bar{
-	<?php if(get_option('sticky_position') == 'top'){?>
-		top: 0px;
-	<?php if(is_user_logged_in()){?>
-		margin-top: 32px;
-	<?php }?>
-	<?php } else{ ?>
-		bottom: 0px
-	<?php }?>
+require_once('includes/mdc-option-page.php');
+class MDC_Theme_Switcher{
+	
+	public function __construct(){
+		if (get_option('mdc_show_sticky_bar') == 1) {
+			add_action('wp_head', array($this, 'mdc_show_sticky_bar'));
+		}
+		add_action('wp_head', array($this, 'mdc_declare_admin_ajax_url'));
+		if (get_option('mdc_show_sticky_bar') == 1) {
+			add_action('wp_head', array($this, 'mdc_custom_css'));
+		}
+		add_action('wp_enqueue_scripts', array($this, 'mdc_enqueue_scripts'));
+		add_action('wp_ajax_mdc_change_theme', array($this, 'mdc_process_ajax_request'));
+		add_action('wp_ajax_nopriv_mdc_change_theme', array($this, 'mdc_process_ajax_request'));
+		if(get_option('mdc_ts_shortcode_enable') == 1){
+			add_action('widget_text', 'do_shortcode');
+			add_shortcode('mdc_theme_switcher', array($this, 'mdc_themes_form'));
+		}
 	}
-	</style>
-	<?php
-}
-add_action('wp_head', 'mdc_custom_css');
-//===add stylesheet ends===//
 
-//===dropdown theme list starts===//
-function mdc_themes_dropdown(){
-$themes = get_option('themes_array');
-?>
-<form action="" method="get" class="mdc_form">
-	<select name="theme" onchange="this.form.submit();">
-		<option>-- Select A Theme --</option>
-		<?php foreach($themes as $theme):?>
-		<option value="<?php echo strtolower(str_replace(" ","",$theme));?>"><?php echo $theme;?></option>
-		<?php endforeach;?>
-	</select>
-</form>
-<?php
-}
-if(get_option('enable_shortcode') == 1){
-	add_shortcode('mdc_theme_swicher', 'mdc_themes_dropdown');
-}
-add_filter('widget_text', 'do_shortcode'); 
-//add sticky bar
-function mdc_sticky_bar(){
-?>
-<div class="mdc_sticky_bar" style="background: <?php if(get_option('sticky_bar_bg')){echo get_option('sticky_bar_bg');} else{ echo "#336699";}?>">
-	<div class="mdc_logo mdc_col mdc_left">
-		<h3 class="mdc_h3" style="color: <?php if(get_option('sticky_bar_txt')){echo get_option('sticky_bar_txt');} else{ echo "#fff";}?>"><?php echo get_option('display_text');?></h3>
-	</div>
-	<div class="mdc_selector mdc_col mdc_left">
-		<?php mdc_themes_dropdown(); ?>
-	</div>
-	<div class="mdc_credit mdc_col mdc_left">
-		<?php if(get_option('credit_link') == 'yes'){?>
-		<p>Powered by <a href="http://medhabi.com" target="_blank">MedhabiDotCom</a></p>
-		<?php }?>
-	</div>
-</div>
-<?php
-}
-
-if(get_option('enable_sticky') == 1){
-	add_action('wp_footer', 'mdc_sticky_bar');
-}
-
-//reload page once
-function mdc_reload_once(){
-?>
-<script type="text/javascript">
-(function()
-{
-  if( window.localStorage )
-  {
-    if( !localStorage.getItem( 'firstLoad' ) )
-    {
-      localStorage[ 'firstLoad' ] = true;
-      window.location.reload();
-    }
-    else
-      localStorage.removeItem( 'firstLoad' );
-  }
-})();
-</script>
-<?php
-}
-//change theme
-function mdc_change_theme(){
-	if($_GET['theme']){
-		$_SESSION['theme'] = $_GET['theme'];
+	public function mdc_enqueue_scripts(){
+		wp_enqueue_script('jquery');
+		wp_enqueue_script('mdc-theme-switcher', plugins_url('js/custom.js', __FILE__));
+		wp_enqueue_style('mdc-theme-switcher', plugins_url('css/custom.css', __FILE__));
 	}
-	if($_SESSION['theme']){
-		switch_theme($_SESSION['theme']);
-		add_action('wp_head', 'mdc_reload_once');
-	}
-	elseif(empty($_SESSION['theme'])){
-		switch_theme(get_option('def_theme'));
-		add_action('wp_head', 'mdc_reload_once');
-	}
-}
-if(!is_admin()){
-	add_action('init', 'mdc_change_theme');
-}
 
-//include option page
-include "mdc-option-page.php";
+	public function mdc_custom_css(){
+		if (is_user_logged_in()) {
+			$position = (get_option('mdc_sticky_bar_position') == "top") ? "top : 32px" : "bottom : 0px";
+		}
+		else{
+			$position = (get_option('mdc_sticky_bar_position') == "top") ? "top : 0px" : "bottom : 0px";
+		}
+		$css = "
+<style type='text/css'>
+/* body { padding-top: 38px; } */
+.mdc_sticky_bar { $position; }\n\r";
+$css .= get_option('mdc_theme_switcher_custom_css')."\n\r";
+$css .= "</style>";
+
+		echo $css;
+	}
+
+	public function mdc_declare_admin_ajax_url(){ ?>
+		<script type="text/javascript"> //<![CDATA[
+			ajaxurl = '<?php echo admin_url( 'admin-ajax.php'); ?>';
+		//]]> </script>
+	<?php }
+
+	public function isSSL() {
+		return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443;
+	}
+	public function mdc_themes_form(){
+		$selected_themes = get_option('mdc_themes_to_show');
+		// echo "<pre>"; print_r($themes); echo "</pre>";
+		if($this->isSSL()){
+			$protocol = "https://";
+		}
+		else{
+			$protocol = "http://";
+		}
+		$active_theme = get_option('stylesheet');
+		$current_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$list_theme ='<form>
+			<input type="hidden" name="redirect_to" class="mdc_redirect_to" value="'.$current_url.'">
+			<select class="mdc_choose_theme">';
+		$list_theme .='<option disabled>Select a Theme</option>';
+		if(is_array($selected_themes)){
+			foreach ($selected_themes as $stylesheet=>$name) {
+				if($stylesheet == $active_theme){ $selected = " selected";}
+				$list_theme .= '<option'.$selected.' value="'.$stylesheet.'">'.$name.'</option>';
+				$selected = '';
+			}
+		}
+		$list_theme .= '</select>
+			</form>';
+
+		return $list_theme;
+	}
+
+	public function mdc_show_sticky_bar(){
+		$bar_html = '
+			<div class="mdc_sticky_bar">
+				<div class="mdc_sticky_bar_left">
+					<label>'.get_bloginfo().'</label>
+				</div>
+
+				<div class="mdc_sticky_bar_center">
+			';
+		$bar_html .= $this->mdc_themes_form();
+		$bar_html .= '
+				</div>
+
+				<div class="mdc_sticky_bar_right">';
+		if(get_option('mdc_ts_remove_credit') != 1) {
+			$bar_html .= '<p>Powered by <a href="https://wordpress.org/plugins/mdc-theme-switcher/" target="_blank">MDC Theme Switcher</a></p>';
+		}
+		$bar_html .= '</div>
+			</div>
+			<div class="mdc_clear"></div>
+			';
+
+		echo $bar_html;
+		// echo "<pre>"; var_dump($themes); echo "</pre>";
+	}
+
+	public function mdc_process_ajax_request(){
+		$new_theme = $_POST['new_theme'];
+		$redirect_to = $_POST['redirect_to'];
+		switch_theme($new_theme);
+		setcookie('mdc_active_theme', $new_theme, time()+300);
+		echo $redirect_to;
+		die();
+		// wp_redirect(get_permalink());
+	}
+
+}
+$mdc_theme_switcher = new MDC_Theme_Switcher();

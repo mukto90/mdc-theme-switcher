@@ -1,0 +1,41 @@
+.mdc_clear {
+	clear: both;
+	overflow: hidden;
+}
+.mdc_sticky_bar {
+	background: #1c1c1c none repeat scroll 0 0;
+	padding: 7px;
+	position: fixed;
+	width: 100%;
+	z-index: 999;
+}
+.mdc_sticky_bar > div {	
+	height: 24px;
+}
+.mdc_sticky_bar_left {
+	float: left;
+	min-width: 200px;
+}
+.mdc_sticky_bar_center {
+	float: left;
+}
+.mdc_sticky_bar_left > label {
+	color: #fff;
+	font-family: Candara;
+	font-size: 18px;
+	padding-left: 10px;
+}
+.mdc_sticky_bar .mdc_choose_theme {
+	border: 1px solid #000;
+	font-size: 16px;
+	line-height: 20px;
+	vertical-align: top;
+}
+.mdc_sticky_bar_right {
+	float: right;
+	padding-right: 10px;
+}
+.mdc_sticky_bar_right > p, .mdc_sticky_bar_right > p > a {
+	color: #fff;
+	margin: 0;
+}
