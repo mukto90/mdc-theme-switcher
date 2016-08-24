@@ -1,5 +1,5 @@
 # MDC Theme Switcher
-
+![banner](http://easycaptures.com/fs/uploaded/1037/2050894707.png)
 ### Description
 
 Allow visitors to choose and preview from available themes from front-end. Different themes for different visitors simultaneously!
@@ -22,17 +22,6 @@ https://www.youtube.com/watch?v=tqUAlUd6IGE
 2. Activate in the `Plugins` menu.
 3. Configure from WordPress admin area.
 4. Add Sticky Bar and/or shortcode `[mdc_theme_swicher]` in your post, page, widget on in a template file; if you wish!
-
-###Screenshots
-![Configure page](https://ps.w.org/mdc-theme-switcher/assets/screenshot-1.png?rev=1391819 "Configure page")
-1. Configure page
-![Sticky bar at bottom with dropdown list of themes](https://ps.w.org/mdc-theme-switcher/assets/screenshot-2.png?rev=1391819 "Sticky bar at bottom with dropdown list of themes")
-2. Sticky bar at bottom with dropdown list of themes
-![Sticky bar at top with dropdown list of themes](https://ps.w.org/mdc-theme-switcher/assets/screenshot-3.png?rev=1391819 "Sticky bar at top with dropdown list of themes")
-3. Sticky bar at top with dropdown list of themes
-![Widget shows dropdown list with shortcode](https://ps.w.org/mdc-theme-switcher/assets/screenshot-4.png?rev=1391819 "Widget shows dropdown list with shortcode")
-4. Widget shows dropdown list with shortcode
-
 
 ###Changelog
 
