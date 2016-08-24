@@ -1,15 +1,15 @@
 <?php
 /**
-Plugin Name: MDC Theme Switcher
-Plugin URI: http://medhabi.com/items/mdc-theme-switcher/
-Description: MDC Theme Switcher allows to change and preview among available themes of a WordPress from front-end.
-Author: Nazmul Ahsan
-Version: 3.1.0
-Author URI: http://nazmulahsan.me
-Stable tag: 3.1.0
-License: GPL2+
-Text Domain: mdc-theme-switcher
-*/
+ * Plugin Name: MDC Theme Switcher
+ * Plugin URI: http://medhabi.com/items/mdc-theme-switcher/
+ * Description: MDC Theme Switcher allows to change and preview among available themes of a WordPress from front-end.
+ * Author: Nazmul Ahsan
+ * Version: 3.1.0
+ * Author URI: http://nazmulahsan.me
+ * Stable tag: 3.1.0
+ * License: GPL2+
+ * Text Domain: mdc-theme-switcher
+ */
 
 /**
  * Include plugin option page
